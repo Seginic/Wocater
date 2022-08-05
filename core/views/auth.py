@@ -35,6 +35,7 @@ class LoginView(View):
         :param kwargs: 额外的关键字参数
         :return: 返回Http视图
         """
+        # TODO: 使用ajax代替表单传值
         # 使用Form类解析表单
         login_form = LoginForm(request.POST)
         # 判断表单是否有效
@@ -48,8 +49,14 @@ class LoginView(View):
                 # 先在数据库中查询到用户名所对的密码（加密状态），再用用户提供的明文密码进行验证
                 if check_password(password, UserInfo.objects.get(name=name).password):
                     # 密码验证通过
-                    return HttpResponse('ok')
+                    # 更新用户的session
+                    response = redirect('/', permanent=True)
+                    response.session['hasLoggedIn'] = True
+                    return response
                 else:
+                    # 密码验证未通过
+                    # 向前端返回错误信息
+                    # TODO
                     return HttpResponse('false')
             except (UserInfo.DoesNotExist, UserInfo.MultipleObjectsReturned):
                 return HttpResponse('error')
