@@ -45,9 +45,9 @@
           </div>
           <div class="checkbox mb-3">
             <label>
-              <input type="checkbox" value="remember-me" name="remember_me"> Stay logged in </label>
+              <input type="checkbox" id='inputRememberMe' value="remember-me" name="remember_me"> Stay logged in </label>
           </div>
-          <button class="btn btn-lg btn-primary btn-block" type="submit">Let me in</button>
+          <button class="btn btn-lg btn-primary btn-block" type="submit" id="btn_submit">Let me in</button>
           <p class="mt-5 mb-3 text-muted">© 2020</p>
         </form>
       </div>
@@ -73,6 +73,21 @@
       }
       gtag('js', new Date());
       gtag('config', 'UA-56159088-1');
+    </script>
+    <script>
+      $('#btn_submit').click(function () {
+        $.ajax({
+          url:'/login/',
+          type:'post',
+          data:{'name':$('#inputUsername').val(),
+                'password':$('#inputPassword').val(),
+                'remember_me':$('#inputRememberMe').val()},
+          success:function (data) {
+            // TODO 添加错误框 若出现错误则将错误信息填入错误框中
+            // TODO django返回json 通过ajax跳转
+          }
+        })
+      })
     </script>
   </body>
 </html>
