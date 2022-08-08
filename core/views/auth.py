@@ -1,9 +1,12 @@
 from django.contrib.auth.hashers import check_password
-from django.core.handlers.wsgi import WSGIRequest
+from django.http import JsonResponse
 from django.views import View
 from django.shortcuts import render, redirect
 
-from core.forms.login import LoginForm
+# 国际化和本地化支持
+from django.utils.translation import gettext as _
+
+from core.forms.auth import LoginForm
 from core.models.auth import UserInfo
 
 
@@ -12,7 +15,8 @@ class LoginView(View):
     用于处理登录页面的视图类
     """
 
-    def get(self, request: WSGIRequest, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         """
         用于处理用户登录时的页面请求
         :param request: Get请求
@@ -25,9 +29,11 @@ class LoginView(View):
         if request.session.get('hasLoggedIn', False):
             # 重定向到主页
             return redirect('/', permanent=True)
-        return render(request, 'Tinydash/auth-login.html')
+        # 返回渲染页面
+        return render(request, 'Tinydash/auth-login.html', {'error_text': _('Incorrect username or password.')})
 
-    def post(self, request: WSGIRequest, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         """
         用于处理用户登录时提交的表单
         :param request: Post请求
@@ -38,20 +44,24 @@ class LoginView(View):
         # 使用Form类解析表单
         login_form = LoginForm(request.POST)
         # 判断表单是否有效
-        from django.http import HttpResponse
         if login_form.is_valid():
             # 表单有效
             # 获取表单中的用户名、密码、是否记录登录状态等信息
-            name, password = (cleaned_data := login_form.cleaned_data).get('name'), cleaned_data.get('password')
+            name, password, remember_user = (cleaned_data := login_form.cleaned_data).get('name'), cleaned_data.get(
+                'password'), cleaned_data.get('remember_me')
             try:
                 # 检查密码是否匹配
                 # 先在数据库中查询到用户名所对的密码（加密状态），再用用户提供的明文密码进行验证
                 if check_password(password, UserInfo.objects.get(name=name).password):
                     # 密码验证通过
-                    return HttpResponse('ok')
-                else:
-                    return HttpResponse('false')
-            except (UserInfo.DoesNotExist, UserInfo.MultipleObjectsReturned):
-                return HttpResponse('error')
-        else:
-            return HttpResponse('not valid')
+                    # 设置session
+                    request.session['hasLoggedIn'] = True
+                    if remember_user:
+                        # 设置session过期时间为 关闭浏览器后立即过期
+                        request.session.set_expiry(0)
+                    return JsonResponse({'error': False})
+            except UserInfo.DoesNotExist:
+                pass
+
+        # 无论不存在用户 还是用户密码错误 统一返回
+        return JsonResponse({'error': True})

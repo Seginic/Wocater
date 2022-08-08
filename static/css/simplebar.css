@@ -136,7 +136,7 @@
   min-height: 10px;
 }
 
-/* .simplebar-scrollbar:before {
+.simplebar-scrollbar:before {
   position: absolute;
   content: '';
   background: black;
@@ -145,7 +145,7 @@
   right: 2px;
   opacity: 0;
   transition: opacity 0.2s linear;
-} */
+}
 
 .simplebar-scrollbar.simplebar-visible:before {
   /* When hovered, remove all transitions from drag handle */
@@ -182,4 +182,30 @@
   min-height: 0;
   min-width: 10px;
   width: auto;
+}
+
+/* Rtl support */
+[data-simplebar-direction='rtl'] .simplebar-track.simplebar-vertical {
+  right: auto;
+  left: 0;
+}
+
+.hs-dummy-scrollbar-size {
+  direction: rtl;
+  position: fixed;
+  opacity: 0;
+  visibility: hidden;
+  height: 500px;
+  width: 500px;
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+
+.simplebar-hide-scrollbar {
+  position: fixed;
+  left: 0;
+  visibility: hidden;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }

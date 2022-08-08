@@ -41,4 +41,5 @@ class TestLoginView(TestCase):
         self.maxDiff = None
         client = Client()
         response = client.post("/login/", data={'name': 'testUser', 'password': 'testPassword'})
-        self.assertEqual('ok', response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'error': False})

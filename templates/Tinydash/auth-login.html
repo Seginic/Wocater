@@ -23,7 +23,7 @@
   <body class="light ">
     <div class="wrapper vh-100">
       <div class="row align-items-center h-100">
-        <form action="/login/" method="post" class="col-lg-3 col-md-4 col-10 mx-auto text-center">
+        <form id="login_form" class="col-lg-3 col-md-4 col-10 mx-auto text-center" onsubmit="return false">
           <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="./index.html">
             <svg version="1.1" id="logo" class="navbar-brand-img brand-md" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 120 120" xml:space="preserve">
               <g>
@@ -35,6 +35,8 @@
           </a>
           <h1 class="h6 mb-3">Sign in</h1>
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+          <div id="error_area" class="alert alert-danger" role="alert" hidden>
+            <span class="fe fe-minus-circle fe-16 mr-2"></span>{{ error_text }}</div>
           <div class="form-group">
             <label for="inputUsername" class="sr-only">Email address</label>
             <input type="text" id="inputUsername" class="form-control form-control-lg" placeholder="User Name" required="" autofocus="" name="name">
@@ -47,7 +49,7 @@
             <label>
               <input type="checkbox" value="remember-me" name="remember_me"> Stay logged in </label>
           </div>
-          <button class="btn btn-lg btn-primary btn-block" type="submit">Let me in</button>
+          <button id="commit_button" class="btn btn-lg btn-primary btn-block" type="submit">Let me in</button>
           <p class="mt-5 mb-3 text-muted">© 2020</p>
         </form>
       </div>
@@ -73,6 +75,30 @@
       }
       gtag('js', new Date());
       gtag('config', 'UA-56159088-1');
+    </script>
+    <!-- 用Ajax传值 同时从后端获取信息 -->
+    <script>
+      $().ready(function() {
+        // 隐藏错误信息
+        $("#commit_button").click(function () {
+          $.ajax({
+            type: "post",
+            url: "/login/",
+            data: $('#login_form').serialize(),
+            dataType : "json",
+            success : function(data) {
+              if (data["error"]) {
+                // 登录失败
+                // 显示错误信息
+                $("#error_area").removeAttr("hidden");
+              }
+              else {
+                window.location.replace("/");
+              }
+            }
+          })
+        })
+      })
     </script>
   </body>
 </html>

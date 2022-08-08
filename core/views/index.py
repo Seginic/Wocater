@@ -4,7 +4,8 @@ from django.shortcuts import render, redirect
 
 
 class IndexView(View):
-    def get(self, request: WSGIRequest, *args, **kwargs):
+    @staticmethod
+    def get(request: WSGIRequest, *args, **kwargs):
         """
         处理主页面的页面请求
         :param request: Get请求
